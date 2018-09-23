@@ -1,0 +1,195 @@
+---
+title: "Heatmaps in R"
+author: "Jared Berry"
+date: "September 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Early on in my time at the Federal Reserve, I was exposed to a number of datasets within our section that had robust geographic identifiers that made it possible to visualize the data based on geography. I had recalled sitting in a skills course in my graduate program that made it possible to create geographic heatmaps in Tableau, though with a fair amount of preprocessing. Lacking access to Tableau in my role, I wondered how difficult creating these kinds of visualizations would be with my (at the time) 6 short weeks of exposure to the R programming language. Naturally, as a testament to the power of vast array of libraries readily available in R, the answer was "yes." As it turns out, with a bit of effort invested into the initial set up of the data.frame objects for plotting, and with the help of the `ggplot2` library, putting together these kinds of visualizations is fairly straight-forward, and the resulting geographical heatmaps are quite impressive to look at and ubiquitous in news articles, blog posts, etc. that seek to portray trends across the United States.
+
+The goal of this post is two-fold: To demonstrate how to effectively clean and manipulate messy data, and to demonstrate how useful the `ggplot2` package can be for quickly building out publication-quality visualizations. Data cleaning and manipulation, fortunately or unfortunately depending on your perspective, constitutes much of the data analysis workflow (something like [80%](https://onlinelibrary.wiley.com/doi/book/10.1002/0471448354)). Becoming adept at this inevitably opens more time to be spent on actually conducting the analytics, whether that is modeling, visualization, or both, and I'm a devout evangelist of using the `dplyr` package for doing so.
+
+Using libraries from the Tidyverse (predominantly `dplyr` and `ggplot2`), this tutorial will walk through some of the fundamental commands of the `dplyr` library for quick and human-readable data manipulation code, and will make use of `ggplot2` to create geographical heatmaps. While these visualizations are static, I hope to revisit this tutorial in a later post to deploy them in Shiny for a more interactive experience, so stay tuned for that.
+
+## Set-up 
+
+I'm going to be operating under the assumption that the reader has R/RStudio installed on their device. I'll begin by attaching the libraries I'll be using throughout this exploration
+
+```{r wd, echo=FALSE}
+setwd("C:/Users/Jared/Documents/datasci/projects/mief_R")
+```
+
+```{r setlibs, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(readxl)
+library(viridis)
+```
+
+Naturally, we'll need data that contains geographical information to visualize in a geographical heatmap. Here, I'm using unemployemnt and median household income data from the USDA and BLS available [here](https://www.ers.usda.gov/data-products/county-level-data-sets/download-data/). Since this data comes as an Excel Workbook (a .xlsx file) we'll use the `readxl` package to load the data into memory.
+
+```{r loadxl}
+# Loading data and skipping some title/sources in the data
+unemployment_data <- read_excel("unemployment_data.xlsx", skip=7)
+
+# Inspect
+glimpse(unemployment_data)
+```
+
+## Data clean-up
+
+Deferring to the framework formalized by Hadley Wickham (see ['Tidy Data'](https://www.jstatsoft.org/article/view/v059i10/v59i10.pdf)), this is clearly a 'messy' dataset. As a quick aside, 'tidy' data has the following characteristics:
+1. Each variable forms a column.
+2. Each observation forms a row.
+3. Each type of observational unit forms a table.
+With this framework in mind, it should be immediately clear why this data is 'messy.' As a panel dataset with both cross-sectional and time-series elements, this dataset is 'wide', such that the four variables of interest (Employed, Unemployed, Unemployment_rate and Civilian_labor_force), are *spread* out along the time dimension, rather than 'long' wherein the time elements are stacked atop one another. Moreover, we're working with three different observational units, as the data contains observations at the country, state, and county levels. Looking at a single observation of data helps put this in context:
+```{r singleob, echo=FALSE}
+# First 18 columns of the first county-level observation
+data.frame(unemployment_data[3,1:18])
+```
+Rather than representing the time-dimension of this data with a separate column for each variable for each year, we'd like to stretch these out so that each observation is a county-year pair. Additionally, since our final geographical visualization will be at the county-level, we can remove the other observational units. Stripping some of the other identifier variables, we'll instead end up with a dataset that has 3 columns of identifiers (FIPStxt, State, Area_name) and 4 variables (as above).
+```{r idtsvars}
+# Specify a vector to capture the years of observation
+data_years <- c(seq(2007, 2017, by=1))
+
+# Separate out the variables that are time series and those that are fixed
+ts_vars <- c("Civilian_labor_force", "Employed", "Unemployed", "Unemployment_rate")
+fixed_vars <- names(unemployment_data)[1:3]
+```
+I use a loop to parse out the time-series variables, place these cuts of the data in a list, and stack everything up 'long'-format. Admittedly, we don't need much `dplyr` syntax to make this work. At a high level this bit of code does the following:
+1) For each year in the data_years vector created above, begins by pasting the year with the root of the time series variables to index them in the data.frame;
+2) Select these variables, along with the 'fixed' variables, from the 'wide'-format data.frame using the `dplyr` `select` statement;
+3) Rename the variables with the year suffixes so they are uniform across all years;
+4) Assign a date so we don't lose the time dimension entirely; and
+5) Store the data in a list.
+I then make handy use of the `Reduce` command to bind all the resulting year-level data.frames into a single data.frame object
+```{r cleanloop}
+# Create and pre-allocate an empty list to store the year subsets
+ts_unemployment <- vector("list", length(data_years))
+names(ts_unemployment) <- paste0("y", data_years)
+
+for (y in data_years) {
+  date_variables <- paste0(ts_vars, "_", y)
+  
+  year_data <- select(unemployment_data, fixed_vars, date_variables)
+  names(year_data)[which(!names(year_data) %in% fixed_vars)] <- ts_vars
+  year_data$date <- as.Date(paste0(y, "-01-01"))
+  
+  ts_unemployment[[paste0("y", y)]] <- year_data
+}
+
+# Stack everything row-wise
+ts_unemployment <- Reduce("rbind", ts_unemployment)
+
+# Inspect
+glimpse(ts_unemployment)
+```
+It's worth noting that, in instances where you're working with a fewer dimensions of these variables to gather (here we have three identifiers, four variables, and time elements for all of them) it can be much cleaner to deploy the `gather` function from `tidyr`. While this is immensely powerful for doing this sort of work, I find the syntax to be difficult ot manage, and for these cases the looping structure works just as well, and makes it clearer how the cleaning is being done.
+
+Now that the data is formatted correctly (read 'tidy') we simply pare things down to the county level, removing state and country level observations, and arrange things according to the county-year pairings we created.
+```{r tocounties }
+#Base R has a number of datasets 'hidden' as default objects that can be called using the 'data' function; here we generate a list of state names to filter
+data(state)
+
+#Using the dplyr 'filter' function to filter out state from county level data
+county_unemp <- filter(ts_unemployment, !(Area_name %in% state.name) & Area_name!='United States')
+
+#Sort the data by state/county, by year
+county_unemp <- arrange(county_unemp, FIPStxt, Area_name, date)
+
+# Inspect
+glimpse(county_unemp)
+```
+
+## Formatting geographical characteristics
+
+Fortunately for us `ggplot2` has some built in geographical data objects that make formatting our data for a geographical heatmap fairly straightforward:
+```{r mapdata}
+# Get county-level map data (available when ggplot2 is loaded)
+counties_gg <- map_data("county")
+glimpse(counties_gg)
+```
+As we can see, this `counties_gg` object countains latitude and longitude pairs for each region (state) and subregion (county) in the United States. It's these lat-long pairs that are in turn used by the `ggplot2` `geom_polygon` function to actual fill the areas prescribed by those pairs. We'll now need to get these lat-long pairs merged with our existing data, which will require a bit of string formatting/manipulation. Note that the `subregion` field of the `counties_gg` data is a lowercase county name without any additional text (no state abbreviation, no 'County', etc.). We'll need to strip these for our merge to be stable.
+I'm using a bit of regex to simply this process, and a discussion/tutorial of using regular expressions is *far* outside the scope of this demonstration, but the following bit of code is a nifty way of replacing all instances of a space, followed by either County, Parish, Census Area, Borough, or Municipality and *all* subsequent text with an empty string, so we're left with only the name of the county/subregion which will match up with the `counties_gg` data.
+```{r formatcounties}
+# Replace extraneous text from county names (Area_name variable)
+county_unemp$subregion <- gsub(" (County|Parish|Census Area|Borough|Municipality).*", "", county_unemp$Area_name)
+
+# Lowercase
+county_unemp$subregion <- tolower(county_unemp$subregion)
+```
+We'll need to convert the abbreviated state names to their proper spelling, again, making use of the `data(state)` objects. I merge in these characteristics using the `dplyr` `left_join` command. I find the `dplyr` join family to be far more intuitive than using base R's merge function, and use them exclusively for merges. They do exactly what the names suggest, align exactly with their SQL complements, and they tend to be more stable and less prone to side-effects as a result. 
+```{r getcountychars}
+# Create a state_info object to merge state names back in for our keys later
+state_info <- cbind(state.name, state.abb)
+
+# Since this is a matrix, we have to convert to a data.frame
+state_info <- data.frame(state_info)
+colnames(state_info) <- c("region", "state")
+
+# Format keys correctly
+state_info$region <- tolower(state_info$region)
+
+# Merge in the state_info data.frame we created
+county_data <- left_join(county_unemp, state_info, by=c("State"="state"))
+
+# Inspect
+glimpse(county_data)
+```
+Now that everything is set up for a merge with the lat-long pairs from the `ggplot2` data, we'll select on a single year of data and a specific variable for plotting and move forward with creating the heatmap. Here I focus on the most recent year of data and the Unemployment_rate data. In a future tutorial, with the help of Shiny, we'll make use of the full assemblage of data when creating reactive heatmaps.
+```{r selectvars}
+# Focus on 2017 numbers
+county_data_17 <- filter(county_data, date == "2017-01-01")
+
+# Pull our keys and some variables of interest
+county_subset <- select(county_data_17, region, subregion, Unemployment_rate)
+
+# Merge with counties_gg
+map_data <- left_join(counties_gg, county_subset, by=c("region", "subregion"))
+
+# Inspect
+glimpse(map_data)
+```
+
+## Creating the heatmap
+
+The `ggplot2` syntax is somewhat alien relative to, well, just about any other syntax in R or any other programming language that I've dealt with for that matter. This aside, it's fairly easy to pick up. `ggplot2` plots are built with in layers. I won't go into greater detail on the syntax or other options the `ggplot2` library, but the [documentation](https://ggplot2.tidyverse.org/index.html) available for the package is fantastic for getting up and running.
+
+We call the `ggplot` function, specify the `map_data` data.frame, and begin setting our aes (aesthetic) parameters, here `x` and `y` correspond to the latitude and longitude pairs merged in above, and the `group` variable is set to the `group` variable from our data, which is a numerical mapping of each county in the dataset. We add an additional layer by ending the data layer line with a `+`. Using the `geom_polygon` function, we can fill each county polygon with `Unemployment_rate`values.
+```{r map, out.width='100%'}
+#Plot
+ggplot(map_data, aes(x=long,y=lat,group=group)) +
+  geom_polygon(aes(fill=Unemployment_rate))
+```
+The 80/20 rule certainly applies here - with 20% of the work, we're about 80% of the way to a publication-quality heatmap. The remaining 20% requires a great deal more `ggplot2` code detailed below, and commented line-by-line. Again, rather than detailing what each bit of syntax does, I'll defer to the documentation linked above.
+```{r mapdetailed, out.width='100%'}
+ggplot(map_data, aes(x=long,y=lat,group=group)) +
+  geom_polygon(aes(fill=Unemployment_rate)) +
+  
+  # Delineate county borders with a thin line
+  geom_path(size=0.1) +
+  
+  # Apply a viridis color-scale - "inferno" works well here
+  scale_fill_viridis(option="inferno", direction=-1)+
+  
+  # Set title
+  ggtitle("Unemployment Rate, by County - 2017") +
+  
+  # Specify legend placement and title text formatting; remove a number of theme items that clutter the plot
+  theme(plot.title = element_text(size=9, face='bold'),
+        legend.direction = "vertical",
+        legend.position = "right",
+        legend.title=element_blank(),
+        panel.background=element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank())
+
+```
+And with that, we have a high-quality geographical heatmap of unemployment across the United States. Naturally, this static visualization will leave most readers wanting - we're unable to capture the time dimension that we worked so hard to clean up, and can't necessarily isolate which counties are experiencing which rates of employment without prior knowledge, a map, or a list of the data. Providing options to move the plot through time, and to provide access to the names of the counties, makes this plot significantly more powerful. Shiny has the power to do just this, and I'll revisit these improvements in a later post.

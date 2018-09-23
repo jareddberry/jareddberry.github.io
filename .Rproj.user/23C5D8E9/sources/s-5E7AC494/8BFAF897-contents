@@ -1,0 +1,29 @@
+---
+title: "Projects"
+output:
+  html_document:
+    theme: sandstone
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+
+***
+
+### The Titanic Dataset (Kaggle)
+
+[Annotated notebook tackling the Titanic dataset](files/titanic_notebook.html)  
+[Download Jupyter notebook](files/titanic_notebook.ipynb)
+
+While I have no definitive proof of this, the Titanic dataset hosted on Kaggle is likely one of the most ubiquitous datasets in the field, largely because it's such a common place for folks to take their first stab at an end to end data science project. I'm no exception - the Titanic dataset is an excellent place to start for a manageable first project, from EDA to running initial classification models. I took advantage of this by building out a fairly involved analysis of the dataset, demonstrating some useful techniques for exploring and visualizing data, as well as applying, evaluating, and comparing a number of workhorse machine learning models to tackle the underlying classification problem.
+
+***
+
+### Home Credit Default Risk (Kaggle)
+
+[Annotated notebook for the Home Credit Default Risk competition](files/hcd_notebook.html)  
+[Download Jupyter notebook](files/hcd_notebook.ipynb)
+
+Home Credit Default Risk was my first "real" competition on Kaggle. This notebook was truly built from the ground-up with no pre-existing structure to get things started, and I learned alot by struggling through the competition. I opted not to post an official kernel on the competition site on Kaggle because, amidst all my travel over the summer while the competition as live, I didn't have time to annotate my work in a way that I felt made it helpful for others. I've posted it here instead to walk through the work I did in the competition.
+
