@@ -9,11 +9,18 @@ output:
       smooth_scroll: false
 ---
 
-### Building heatmaps in R with dplyr and ggplot2
+### Scraping PDFs in R with `pdftools` and `stringr`
+
+[PDF scraping in R](files/scraping_pdfs_in_r.html)  
+[Download RMarkdown](files/scraping_pdfs_in_r.Rmd)
+
+With the sheer volume at our disposal in today's world, it's no surprise that much of it is not neatly-packaged for use "out-of-the-box." This brief tutorial demonstrates the uses of `pdftools` and `stringr` to automate the processing of tables that come in PDF files (e.g. tables available in newsletters, statistical releases, earnings reports, etc.). With a bit of regular expression know-how, and these packages, one can scrape tables off PDFs into tidy, tabular formats for further use in analytics pipelines.
+
+### Building heatmaps in R with `dplyr` and `ggplot2`
 
 [Heatmaps in R](files/heatmaps_in_r.html)  
 [Download RMarkdown](files/heatmaps_in_r.Rmd)
 
-For my inaugural post in this blog of tutorials, musings on data science and data analytics, and (what I hope to be) interesting explorations of new datasets, I'm revisiting one of the first challenges I came up against in my time as an analyst at the Board. I didn't fully appreciate the power of R prior to working through this exercise, and was blown away by how simple it can be to build incredible visualizations in R. This is a brief tutorial using the dplyr and ggplot2 libraries to work through the process of cleaning a poorly-formatted dataset and harness the power of the ggplot2 library to turn that data into a geographical heatmap of the United States, at the *county* level.
+For my inaugural post in this blog I'm revisiting one of the first challenges I came up against in my time as an analyst at the Board. I didn't fully appreciate the power of R prior to working through this exercise, and was blown away by how simple it can be to build incredible visualizations in R. This is a brief tutorial using the `dplyr` and `ggplot2` libraries to work through the process of cleaning a poorly-formatted dataset and harness the power of the `ggplot2` library to turn that data into a geographical heatmap of the United States, at the *county* level.
 
 ***

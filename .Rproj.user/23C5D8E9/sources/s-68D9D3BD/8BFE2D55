@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1548006424230.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1113221140",
+    "id" : "8BFE2D55",
+    "lastKnownWriteTime" : 1548014486,
+    "last_content_update" : 1548014486573,
+    "path" : "~/datasci/projects/pdf_scrape/scraping_pdfs_in_r.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "174,540",
+        "last_setup_crc32" : "68D9D3BDbb338d19",
+        "scrollLine" : "168"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

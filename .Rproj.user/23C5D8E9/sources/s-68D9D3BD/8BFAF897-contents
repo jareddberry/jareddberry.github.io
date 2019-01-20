@@ -36,3 +36,12 @@ While I have no definitive proof of this, the Titanic dataset hosted on Kaggle i
 
 ***
 
+### Monte Carlo Analysis in Excel (Audi Case Study)
+
+[Audi US Expansion Case Study Presentation](files/audi_expansion_monte_carlo_case_study.pdf)
+[Monte Carlo Model (Excel Download)](files/monte_carlo_model.xlsx)
+
+The presentation, and accompanying Excel workbook, are the culmination of a semester-long project to develop a Monte Carlo model that robustly models the possible states of the world facing Audi in deciding how to best expand into the US market in the coming years. Using assumptions generated from publically available information and reading, and using Monte Carlo analysis, we attempted to create a toy model of the U.S. economy, particularly as it related to a foreign auto maker, and allow the user to specify assumptions in a dashboard to directly compare a number of strategies. The workbook is fairly large (~13Mb) and will be downleaded by clicking the link above. New assumptions can be processed with the underlying Monte Carlo machinery using the `CTRL-n` shortcut. We do not represent Audi in any way - all opinions and analysis are our own, and are generated using publically available data at the time of writing (Spring 2017).
+
+***
+
