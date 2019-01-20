@@ -1,0 +1,188 @@
+# Set the working directory
+getwd()
+
+# BASICS --------------------------------------------------------------
+
+# R as a calculator
+3+5
+3*4
+(8/2)-(3*4)
+pi
+log(27)
+4%%2
+
+# Variable assignment and vectors
+x <- c(1,2,7.4,-2,0) # A numeric vector
+y <- c("one","two","three") # A character vector
+z <- c(TRUE, FALSE, TRUE) # A logical vector
+
+x
+
+?str
+str(x)
+str(y)
+
+# Vectorized operations
+x <- c(1,4,7)
+y <- seq(from=2,to=6,by=2) #Note that this is the same as seq(2,6,2)
+
+x
+x/2
+x^2
+sqrt(x)
+
+y
+x-y
+x*y
+
+# Combine vectors
+w <- c(x, y)
+w
+
+# Working with data frames
+z <- matrix(seq(1,12),3,4)
+z[2:3, 3:4]
+z[,2:3]
+z[,1]
+z[,1,drop=FALSE]
+
+# Reading in data & libraries/packages
+?read.csv
+salaries_data <- read.csv("Salaries.csv")
+
+# head(salaries_data)
+# head(salaries_data, 15)
+
+# install.packages("haven")
+library(haven)
+
+wage_data <- data.frame(read_dta("MROZ.dta"))
+
+# Inspecting data
+head(wage_data)
+tail(wage_data)
+summary(wage_data)
+
+nrow(wage_data)
+ncol(wage_data)
+
+names(wage_data)
+
+str(wage_data)
+dim(wage_data)
+
+wage_data[2,]
+wage_data[,3]
+wage_data[2,1]
+
+wage_data[c(1:3),]
+wage_data[,c(1:2,length(wage_data)-1)]
+
+names(wage_data)
+
+wage_data[,c("age", "educ", "exper")]
+
+# Lists
+my_list <- list()
+
+my_list$a_vector <- c(1,2,3)
+my_list$a_matrix <- matrix(seq(1,9),3,3)
+my_list$a_dataframe <- wage_data
+
+# Base R functions and more operations
+wage_data$wage
+wage_data$lwage
+
+summary(wage_data$hours)
+mean(wage_data$wage)
+sd(wage_data$wage)
+hist(wage_data$wage)
+hist(wage_data$wage, breaks=10)
+
+#Some basic plotting
+?plot
+plot(wage_data$age, wage_data$wage)
+
+# Simple regression
+lm(wage~educ, wage_data)
+fit <- lm(wage~educ, wage_data)
+fit
+summary(fit)
+
+plot(wage~educ, wage_data)
+abline(fit, col="firebrick")
+
+fit2 <- lm(wage~educ + exper, wage_data)
+names(fit2)
+
+confint(fit2)
+
+# Also have things like cor, cov, var, etc...
+
+# Conditionals
+1 < 2
+x < y
+x == y
+1 != 1
+
+x %in% z
+
+# Conditionals and subsetting
+salaries_data[salaries_data$rank == "Prof",]
+salaries_data[salaries_data$sex == "Female",]
+salaries_data[salaries_data$salary > 100000,]
+
+# BASICS - PRACTICE ---------------------------------------------------
+
+# Using subsetting, drop the `X` index column
+# Create both a histogram and a boxplot of the `salary` variable
+# What proportion of the professors in the dataset are Female?
+# Conduct a simple linear regression of  `yrs.service` on `salary`
+# Report the coefficients, standard errors, and confidence interval for the regression specified above
+# Create a simple plot of `yrs.service` and `salary`
+# Using `?plot`, create properly formatted labels and titles for the plot above
+# What is the average salary of the `AssocProf` rank?
+# Compute the standard deviations in salary for male and female professors, separately
+# Which `discipline` has the higher median salary?
+# How many years of service does the 200th individual in this dataset have?
+
+salaries_data <- salaries_data[2:7]
+
+
+hist(salaries_data$salary)
+
+
+boxplot(salaries_data$salary)
+
+
+nrow(salaries_data[salaries_data$sex=="Male",])/nrow(salaries_data)
+
+
+fit <- lm(salary ~ yrs.service, salaries_data)
+
+
+fit$coefficients
+
+
+summary(fit)
+
+
+confint(fit)
+
+
+plot(x = salaries_data$yrs.service, y = salaries_data$salary)
+
+
+plot(x = salaries_data$yrs.service, y = salaries_data$salary, xlab = "Years of service", ylab = "Salary", main = "Salary by years of service")
+
+
+mean(salaries_data[salaries_data$rank=="AssocProf","salary"])
+
+
+sd(salaries_data[salaries_data$sex=="Female","salary"])
+
+
+sd(salaries_data[salaries_data$sex=="Male","salary"])
+
+
+salaries_data[200, "yrs.service"]
