@@ -94,7 +94,7 @@ row_expr
 # Remove rows which do not contain values for input based on names from PDF
 g20_table <- g20_table_raw[which(!str_detect(g20_table_raw, row_expr))]
 
-# Remove commmas
+# Remove commas
 g20_table <- map_chr(g20_table, str_replace_all, pattern=",", replacement="")
 
 # Split at any number of spaces
