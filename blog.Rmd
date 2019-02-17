@@ -10,7 +10,7 @@ output:
 ---
 
 ### Edit Distance and Approximate String Matching
-[Edit Distance](files/edit_distance.html)
+[Edit Distance](files/edit_distance.html)  
 [Download RMarkdown](files/edit_distance.Rmd)
 
 Distance metrics are excellent for implementing approximate string matching, whether as an initial step in entity resolution or building out programs to execute algorithms similar to those one would see in predictive text and spell check. This post delves into a dynamic programming implementation of edit distance to understand how things work "under-the-hood", and then provides examples of using the built in `adist` and `agrep` functions readily available in R.

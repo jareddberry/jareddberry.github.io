@@ -11,7 +11,7 @@ output:
 
 ### Teaching Introductory R
 
-[Introduction to R Presentation (Beamer Presentation)](files/intro_to_R.pdf)
+[Introduction to R Presentation (Beamer Presentation)](files/intro_to_R.pdf)  
 [Introduction to R script](files/intro_to_R.R)
 
 This is the second year I've had the privilege of teaching R at Johns Hopkins SAIS during the Winter Intercession that is run for the MIEF cohort (from which I am alum). The structure of the intercession is designed to provide brief, intensive, skills-based courses to the cohort, covering a wide-range of topics including programming languages, investing, infrastructure finance, etc. I've used the presentation materials to teach R in this setting, as well as to teach R to incoming RAs at the Fed in the Monetary Affairs division. The emphasis is on the basics, and getting up to speed on data cleaning and manipulation using `dplyr`. While the presentation is well-organized, the R script is more a stream-of-conciousness exercise that I work through alongside the presentation to demonstrate working through the commands directly in the R Studio environment.
