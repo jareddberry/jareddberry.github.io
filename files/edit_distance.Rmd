@@ -1,0 +1,284 @@
+---
+title: "Edit Distance and Approximate String Matching"
+author: "Jared Berry"
+date: "February 17, 2019"
+header-includes:
+  - \usepackage{amsmath}
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressPackageStartupMessages(library(dplyr))
+```
+
+```{r algo, eval=TRUE, echo=FALSE}
+edit_distance <- function(s, t) {
+  m = nchar(s) + 1
+  n = nchar(t) + 1
+  D = matrix(0, nrow = m, ncol = n)
+  
+  for(i in 0:nchar(s)) {
+    D[i+1,1] <- i
+  }
+  
+  for(j in 1:nchar(t)) {
+    D[1,j+1] <- j
+  }
+  
+  for(j in 2:n) {
+    for(i in 2:m) {
+      insert = D[i,j-1] + 1
+      delete = D[i-1, j] + 1
+      matched = D[i-1,j-1]
+      mismatched = D[i-1,j-1] + 1
+      
+      if(substr(s, i-1, i-1) == substr(t, j-1, j-1)) {
+        D[i,j] = min(insert, delete, matched)
+      } else {
+        D[i,j] = min(insert, delete, mismatched)
+      }
+      
+    }
+  }
+  
+  return(D[m-1,n-1])
+  
+}
+```
+
+In the era of spell check and autocorrect, it's probably a fair assumption that anyone reading this has had a misspelled or mistyped word corrected for them, or has been presented with a menu of options for what the word *might* have been. Suppose, however, one needed to implement something like this in a data product. For instance, beyond the clear use case of predictive text and autocorrect, the same approach can be leveraged for 'fuzzy' merges. In the absence of defined keys to merge two data sets, suppose you have two columns of names to match on. We can pre-process the text to the best of our ability (applying some of the techniques in the [previous post](/files/scraping_pdfs_in_r.html)), but there are bound to be discrepancies that can't be addressed directly with pre-processing. To build something equivalent from scratch, we can use a *distance* measure. 
+
+In this post, I'll focus on *edit distance*, for a few reasons. First and foremost, we can implement the edit distance algorithm from scratch, by applying dynamic programming, to appreciate and understand how it works "under-the-hood". Second (and also the primary reason I'm using R here), base R has an edit distance function ready to go, off the shelf, that could be used to handle the use case described above.
+
+## The problem
+
+Given two strings $s$ and $t$ of length $\ge 1$, the edit distance between strings $s$ and $t$ is defined as the number of *insertions*, *deletions*, and *substitutions* needed such that $s=t$. As it is typically postulated, we suppose each of these transformations have *unit cost*, i.e. each insertion, deletion, or substitution adds 1 to the cost of performing the overall transformation. In our implementation, and in the base R function, we can also adapt these costs to fit our particular use case.
+
+Let's take two words, `"boats"` and `"floats"`, as an example. What steps (insertions, deletions, and substitions) are necessary to tranform `"boats"` into `"afloat"`
+
+`BOATS`  
+`AFLOAT`
+
+`AOATS <- Substitute 'A' for 'B'`  
+`AFLOAT`
+
+`AFOATS <- Insert 'F'`  
+`AFLOAT`
+
+`AFLOATS <- Insert 'L'`  
+`AFLOAT`
+
+`AFLOAT <- Delete 'S'`  
+`AFLOAT`  
+
+Working through this by hand, we find it takes at least 4 tranformations to transform `"boats"` into `"floats"`. We can implement these transformations algorithmically with an implementation of the Levenshtein algorithm. Using a dynamic programming matrix (credited to Wagner-Fischer) `D` and strings $s$ and $t$ of lengths $m$ and $n$, we have:
+
+![](edit_algo.png)
+
+As hinted at, we'll leverage dynamic programming in our implentation of edit distance.
+
+## The algorithm
+
+The hallmark of dynamic programming is that it breaks large, potentially intractable problems into smaller, more managable subparts. In our implementation, we use a dynamic programming matrix `D` which stores the results of the formula above for each substring $i$ and $j$ this also has the useful property of cumulating the costs of each transformation as we iterate through each string.
+
+By storing the costs at each iteration, we greatly reduce the complexity of our problem, particularly as the lengths of strings $s$ and $t$ increase. In fact, we only need to compute the cost for each combination of the substrings of $s$ and $t$ *once*, rather than computing the costs repeatedly in each recursive call *without* dynamic programming.
+
+```{r algo_disp, eval=FALSE}
+edit_distance <- function(s, t) {
+  m = nchar(s) + 1
+  n = nchar(t) + 1
+  D = matrix(0, nrow = m, ncol = n)
+  
+  for(i in 0:nchar(s)) {
+    D[i+1,1] <- i
+  }
+  
+  for(j in 1:nchar(t)) {
+    D[1,j+1] <- j
+  }
+  
+  for(j in 2:n) {
+    for(i in 2:m) {
+      insert = D[i,j-1] + 1
+      delete = D[i-1, j] + 1
+      matched = D[i-1,j-1]
+      mismatched = D[i-1,j-1] + 1
+      
+      if(substr(s, i-1, i-1) == substr(t, j-1, j-1)) {
+        D[i,j] = min(insert, delete, matched)
+      } else {
+        D[i,j] = min(insert, delete, mismatched)
+      }
+      
+    }
+  }
+  
+  return(D[m-1,n-1])
+  
+}
+```
+
+We begin my instantiating a matrix $D$ with $m$ rows and $n$ columns based on the length of the two strings $s$ and $t$, plus 1. In the first row and first column, we simply enumerate the length of the string. So, for the strings `"boats"` and `"afloat"`, we have:
+
+```{r dp_matrix, echo=FALSE}
+s = "boats"
+t = "afloat"
+m = nchar(s) + 1
+n = nchar(t) + 1
+D = matrix(0, nrow = m, ncol = n)
+
+for(i in 0:nchar(s)) {
+  D[i+1,1] <- i
+}
+    
+for(j in 1:nchar(t)) {
+  D[1,j+1] <- j
+}
+
+print(D)
+
+i = 2
+j = 2
+
+```
+
+This matrix represents the costs we need to calculate to determine the total edit distance between the two strings. As indicated above, this amounts to only $m*n$ iterations, where $m$ and $n$ are the lengths of the two strings. We begin iterating over the characters of strings $s$ and $t$, compute costs according to the formula prescribed above, and store the results. Walking through one iteration, we have the following:
+
+```{r first_iteration, echo=FALSE}
+insert = D[i,j-1] + 1
+message(paste("Insert:", insert))
+delete = D[i-1, j] + 1
+message(paste("Delete:", delete))
+matched = D[i-1,j-1]
+message(paste("Matched:", matched))
+mismatched = D[i-1,j-1] + 1
+message(paste("Mismatched:", mismatched))
+    
+if(substr(s, i-1, i-1) == substr(t, j-1, j-1)) {
+  D[i,j] = min(insert, delete, matched)
+} else {
+  D[i,j] = min(insert, delete, mismatched)
+}
+
+print(D)
+
+```
+
+As the first characters of $s$ and $t$ do not match, we choose the operation with the minimum cost (`mismatched`, or proxy for a substitution) and store the cost in the dynamic programming matrix $D$. The formula we've implemented here has the desirable property of traversing through the rest of the combinations of the characters in $s$ and $t$, storing all possible transformations, and selecting the set of transformations with the *minimum total cost*. While the cost of this initial mismatch propogates through the entire transformation, we choose the path which minimizes the subsequent costs. We end up with the final, fully populated, dynamic programming matrix:
+
+```{r final_mat, echo=FALSE}
+m = nchar(s) + 1
+n = nchar(t) + 1
+D = matrix(0, nrow = m, ncol = n)
+
+for(i in 0:nchar(s)) {
+  D[i+1,1] <- i
+}
+
+for(j in 1:nchar(t)) {
+  D[1,j+1] <- j
+}
+
+for(j in 2:n) {
+  for(i in 2:m) {
+    insert = D[i,j-1] + 1
+    delete = D[i-1, j] + 1
+    matched = D[i-1,j-1]
+    mismatched = D[i-1,j-1] + 1
+    
+    if(substr(s, i-1, i-1) == substr(t, j-1, j-1)) {
+      D[i,j] = min(insert, delete, matched)
+    } else {
+      D[i,j] = min(insert, delete, mismatched)
+    }
+    
+  }
+}
+
+print(D)
+```
+
+The value at $D[m,n]$ is the edit distance between the two strings, and represents the minimum cost of performing the transformations necessary for $s$ to exactly match $t$. So, the edit distance between `"boats"` and `"afloat"` is 4, just as we surmised above.
+
+```{r algo_eval}
+edit_distance("boats", "afloat")
+```
+
+## Edit distance off-the-shelf -- `adist`
+
+The reason I've used R here (rather than, say, Python where strings are iterables) is to demonstrate how the edit distance algorithm works "under-the-hood" before introducing two built in functions that will perform the same operation. The R function `adist` will compute the edit distance between two strings `x` and `y` just as above:
+
+```{r adist}
+adist("boats", "afloat")
+```
+
+Moreover, we can pass *vectors* of strings to evaluate all the distances across both vectors:
+
+```{r adist_vector}
+adist(c("boats", "canoes"), c("afloat", "canoodle"))
+```
+
+And, if we are uninterest in the off-diagonal distances (i.e. we want to find the edit distance between `"boats"` and `"afloat"` and `"canoes"` and `"canoodle"` but *not* between `"boats"` and `"canoodle"`) we can simply return the diagonal of the resulting matrix.
+
+```{r adist_diag}
+diag(adist(c("boats", "canoes"), c("afloat", "canoodle")))
+```
+
+So, given two columns of names/strings for possible join, we can use this in conjunction with the `dplyr` mutate function to create a `distance` column, like `mutate(data, distance = diag(adist(str_column_1, str_column_2)))`. 
+
+```{r load, echo=FALSE}
+call_names <- read.csv("call_report_names.csv", stringsAsFactors = F)
+sba_names <- read.csv("sba_names.csv", stringsAsFactors = F)
+```
+
+As an example, take the two following dataframes of identifying variables from the FFIEC 031/041 (Call report) and the Small Business Association:
+
+```{r datasets, echo=FALSE}
+head(call_names[,1:5])
+head(sba_names[,1:4])
+```
+
+While we can match on the geographic variables, there are inevitably going to be multiple banks in each city-zip code group (even in this subset). Even without exact bank names to match on, we can use `adist` to perform approximate string matching.
+
+Using the syntax above (and using some lightly-standardized versions of the names:
+```{r fuzzy_match_1}
+call_names[,c(1,3:6)] %>%
+  inner_join(sba_names[,c(5,2:4)], by=c("state", "zip", "city"), suffix=c("_call", "_sba")) %>%
+  mutate(distance = diag(adist(cname_call, cname_sba))) %>%
+  arrange(state, city, zip) %>%
+  data.frame %>% 
+  head
+```
+
+By grouping the state-city-zip matches, we can filter out the banks with the minimal edit distance, and arrive at stable, approximate string matches across the two samples
+
+```{r fuzzy_match_2}
+call_names[,c(1,6,3:5)] %>%
+  inner_join(sba_names[,c(5,2:4)], by=c("state", "zip", "city"), suffix=c("_call", "_sba")) %>%
+  mutate(distance = diag(adist(cname_call, cname_sba))) %>%
+  group_by(state, city, zip) %>%
+  filter(distance == min(distance)) %>%
+  ungroup() %>%
+  arrange(distance) %>%
+  data.frame %>%
+  head
+```
+
+## Edit distance off-the-shelf -- `agrep`
+
+The above implementation certainly works, and leverages the edit distance algorithm to address our particular use case, but we can tackle things more concisely using `agrep`, which uses the computed edit distance for fuzzy matching between two strings, given a user-defined cost threshold. By default, `agrep`'s max distance threshold is 10%, a fraction of the pattern length times the maximal transformation cost (see `?agrep`). In practice, using some of the names above, we have:
+
+```{r agrep_1}
+call_names$cname[agrep("BANK OF DELMARVA", call_names$cname)]
+```
+
+We can utilize `agrep` to generate a set of bank name keys to directly join the datasets together, without the need for the grouping and slicing:
+
+```{r fuzzy_match_3}
+sba_names$bank_name_key <- call_names$cname[sapply(sba_names$cname, function(x) agrep(x, call_names$cname)[[1]])]
+call_names[,c(1,6,3:5)] %>%
+  inner_join(sba_names[,c(5,2:4,6)], by=c("cname"="bank_name_key", "state", "zip", "city"), suffix=c("_call", "_sba")) %>%
+  data.frame %>%
+  head
+```
