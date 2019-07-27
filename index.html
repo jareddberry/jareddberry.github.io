@@ -22,9 +22,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-5.0.13/css/fa-svg-with-js.css" rel="stylesheet" />
-<script src="site_libs/font-awesome-5.0.13/js/fontawesome-all.min.js"></script>
-<script src="site_libs/font-awesome-5.0.13/js/fa-v4-shims.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -73,9 +72,7 @@ h6 {
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 
-</head>
 
-<body>
 
 <style type = "text/css">
 .main-container {
@@ -100,6 +97,9 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
+summary {
+  display: list-item;
+}
 </style>
 
 
@@ -114,7 +114,6 @@ body {
   padding-top: 66px;
   margin-top: -66px;
 }
-
 .section h2 {
   padding-top: 66px;
   margin-top: -66px;
@@ -134,6 +133,43 @@ body {
 .section h6 {
   padding-top: 66px;
   margin-top: -66px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
 }
 </style>
 
@@ -155,19 +191,85 @@ $(document).ready(function () {
 });
 </script>
 
-
-<div class="container-fluid main-container">
-
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
 });
 </script>
 
 <!-- code folding -->
 
 
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
 
 
 
@@ -228,11 +330,10 @@ $(document).ready(function () {
 
 <p><link rel="stylesheet" href="styles.css" type="text/css"></p>
 <hr />
-<p>I like to distill insights from financial and economic data. I investigate questions related to bank lending and monetary policy as a Senior Research Assistant at the <a href="https://www.federalreserve.gov/">Federal Reserve Board</a> in Washington, D.C, where I contribute to division research (chiefly related to interest rates, bank lending standards, and financial conditions) and operationalize new and existing data sources into production-ready monitors.</p>
-<p>I graduated from the <a href="http://www.sais-jhu.edu/mief#overview">Johns Hopkins University School of Advanced International Studies</a> (SAIS) with a masters degree in International Economics and Finance (MIEF) in 2017, a rigorous, STEM-accredited quantitative econometrics program. During my graduate studies, I worked as a research assistant for Dr. Jaime Marquez using Monte Carlo methods and FIML models to investigate interdependent Taylor Rules. I am currently pursuing a Certificate in Data Science at Georgetown University.</p>
-<p>While my work requires proficiency in a number of statistical computing and programming languages, I am first and foremost an avid R enthusiast. I teach an introductory R course to students in the MIEF program at SAIS and have taught R as a part of onboarding new division RAs at the Board.</p>
+<p>I like to distill insights from financial, economic, and public opinion data. I currently work as a data scientist at <a href="https://morningconsult.com/">Morning Consult</a> in Washington, D.C., where I help clients leverage public opinion data to make better decisions. Previously, I investigated questions related to bank lending and monetary policy as a Senior Research Assistant at the <a href="https://www.federalreserve.gov/">Federal Reserve Board</a>, where I contributed to division research (chiefly related to interest rates, bank lending standards, and financial conditions) and operationalized new and existing data sources into production-ready monitors.</p>
+<p>I graduated from the <a href="https://www.sais-jhu.edu/mief#overview">Johns Hopkins University School of Advanced International Studies</a> (SAIS) with a masters degree in International Economics and Finance (MIEF) in 2017, a rigorous, STEM-accredited quantitative econometrics program. During my graduate studies, I worked as a research assistant for Dr. Jaime Marquez using Monte Carlo methods and FIML models to investigate interdependent Taylor Rules. I also hold a <a href="https://scs.georgetown.edu/programs/375/certificate-in-data-science/">Certificate in Data Science</a> from Georgetown University.</p>
+<p>I work in both Python and R interchangeably in my work, but I am first and foremost an avid R enthusiast. I teach an introductory R course to students in the MIEF program at SAIS and have taught introductory R as a part of onboarding new division RAs at the Board.</p>
 <p>My resume is available <a href="files/berry_cv.pdf">here</a>.</p>
-<p>The views expressed here are my own, and should not be interpreted as reflecting the views of the Board of Governors of the Federal Reserve System or of anyone else associated with the Federal Reserve System.</p>
 
 
 

@@ -11,6 +11,12 @@ output:
 
 ***
 
+### Analyzing Net Interest Margins (NIMs) across Monetary Policy Tightening Episodes
+
+[Changes in Monetary Policy and Banks' Net Interest Margins](https://www.federalreserve.gov/econres/notes/feds-notes/changes-in-monetary-policy-and-banks-net-interest-margins-a-comparison-20190419.htm)
+
+While at the Federal Reserve Board, I co-authored a FEDS Note analyzing changes in net interest margins (NIMs) at banks relative to monetary policy tightening episodes over the past three decades. I wrote all the code used to perform the analysis, implementing cumulative decompositions using bank balance sheet data and developing all data visualizations in R.
+
 ### Long-run Exchange Rate Forecasting
 
 [The Role of Theory-Motivated Fundamentals in Long-Run Exchange Rate Forecasting](files/exchange_rate_forecasting.pdf)
