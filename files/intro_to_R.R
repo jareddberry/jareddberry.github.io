@@ -1,6 +1,9 @@
-# SESSION 1 ----------------------------------------------------------------------------
+# SESSION 1 -------------------------------------------------------------------
 
-# BASICS --------------------------------------------------------------
+# Get/set the working directory
+getwd()
+
+# BASICS ----------------------------------------------------------------------
 
 # R as a calculator
 3+5
@@ -47,7 +50,7 @@ z[,1,drop=FALSE]
 
 # Reading in data & libraries/packages
 ?read.csv
-salaries_data <- read.csv("Salaries.csv")
+salaries_data <- read.csv("Salaries.csv", stringsAsFactors = FALSE)
 
 # head(salaries_data)
 # head(salaries_data, 15)
@@ -98,13 +101,17 @@ sd(wage_data$wage)
 hist(wage_data$wage)
 hist(wage_data$wage, breaks=10)
 
-#Some basic plotting
+# Write data out
+to_write_out <- wage_data[,c("age", "educ", "exper")]
+write.csv(to_write_out, 'mroz_small.csv', row.names = F)
+
+# Some basic plotting
 ?plot
 plot(wage_data$age, wage_data$wage)
 
 # Simple regression
 lm(wage~educ, wage_data)
-fit <- lm(wage~educ, wage_data)
+x <- lm(wage~educ, wage_data)
 fit
 summary(fit)
 
@@ -131,127 +138,153 @@ salaries_data[salaries_data$rank == "Prof",]
 salaries_data[salaries_data$sex == "Female",]
 salaries_data[salaries_data$salary > 100000,]
 
-# BASICS - PRACTICE ---------------------------------------------------
+# BASICS - PRACTICE -----------------------------------------------------------
+
+salaries_data <- read.csv('Salaries.csv', stringsAsFactors = F)
 
 # Using subsetting, drop the `X` index column
-# Create both a histogram and a boxplot of the `salary` variable
-# What proportion of the professors in the dataset are Female?
-# Conduct a simple linear regression of  `yrs.service` on `salary`
-# Report the coefficients, standard errors, and confidence interval for the regression specified above
-# Create a simple plot of `yrs.service` and `salary`
-# Using `?plot`, create properly formatted labels and titles for the plot above
-# What is the average salary of the `AssocProf` rank?
-# Compute the standard deviations in salary for male and female professors, separately
-# Which `discipline` has the higher median salary?
-# How many years of service does the 200th individual in this dataset have?
 
 salaries_data <- salaries_data[2:7]
 
+# Create both a histogram and a boxplot of the `salary` variable
 
 hist(salaries_data$salary)
-
-
 boxplot(salaries_data$salary)
 
+# What proportion of the professors in the dataset are Female?
 
-nrow(salaries_data[salaries_data$sex=="Male",])/nrow(salaries_data)
+n_prof <- nrow(salaries_data)
+female_profs <- salaries_data[salaries_data$sex == 'Female',]
+nrow(female_profs)/n_prof
 
+# Conduct a simple linear regression of  `yrs.service` on `salary`
 
-fit <- lm(salary ~ yrs.service, salaries_data)
+fit <- lm(salary~yrs.service, salaries_data)
+summary(fit)
 
+# Report the coefficients, standard errors, and confidence interval for the regression specified above
+
+?confint
+confint(fit)
 
 fit$coefficients
 
+# Create a simple plot of `yrs.service` and `salary`
 
-summary(fit)
+plot(salaries_data$yrs.service, salaries_data$salary)
 
+# Using `?plot`, create properly formatted labels and titles for the plot above
 
-confint(fit)
+?plot
+plot(salaries_data$yrs.service, 
+     salaries_data$salary, 
+     main='Salary by years of service',
+     xlab='Years of Service',
+     ylab='Salary')
 
+# What is the average salary of the `AssocProf` rank?
 
-plot(x = salaries_data$yrs.service, y = salaries_data$salary)
+assoc_prof <- salaries_data[salaries_data$rank == 'AssocProf',]
+mean(assoc_prof$salary)
 
+# Compute the standard deviations in salary for male and female professors, separately
 
-plot(x = salaries_data$yrs.service, y = salaries_data$salary, xlab = "Years of service", ylab = "Salary", main = "Salary by years of service")
+sd(salaries_data$salary[salaries_data$sex == 'Male'])
+sd(salaries_data$salary[salaries_data$sex == 'Female'])
 
+# Which `discipline` has the higher median salary?
 
-mean(salaries_data[salaries_data$rank=="AssocProf","salary"])
+unique(salaries_data$discipline)
 
+median(salaries_data$salary[salaries_data$discipline == 'A'])
+discipline_b <- salaries_data[salaries_data$discipline == 'B',]
+median(discipline_b$salary)
 
-sd(salaries_data[salaries_data$sex=="Female","salary"])
+# How many years of service does the 200th individual in this dataset have?
 
+salaries_data[200,]
+salaries_data$yrs.service[200]
 
-sd(salaries_data[salaries_data$sex=="Male","salary"])
-
-
-salaries_data[200, "yrs.service"]
-
-# SESSION 2 ----------------------------------------------------------------------------
+# SESSION 2 ------------------------------------------------------------
 
 rm(list=ls())
 
-# INSTALL AND/OR ATTACH THESE LIBRARIES
+# Set libraries
 library(dplyr)
 library(haven)
 
 # WARM-UP -------------------------------------------------------------
 
 # Read the 'state_unemp_clean.csv' data into memory and assign it to a variable of your choosing
+state_unemp <- read.csv('state_unemp_clean.csv', stringsAsFactors = F)
+
 # Convert the 'date' column to the date type (Hint: Use 'as.Date' and reassign it to the 'date' variable)
-# What is the highest unemployment rate in the sample?
-# Which state has the highest unemployment rate in the sample? In what year was that rate reached?
-# What is the average household income across all the states in the sample?
-# What is Ohio's average unemployment rate in this time horizon?
-# Create a time-series plot of the unemployment rate in the state with the lowest unemployment rate in 2016
-# Change the x- and y-labels and plot title to descriptive names
-# Using '?plot' for help, change the type of the plot to a line graph
-
-# ---------------------------------------------------------------------
-
-state_unemp <- read.csv("state_unemp_clean.csv", stringsAsFactors=FALSE)
-
-
 state_unemp$date <- as.Date(state_unemp$date)
 
-
+# What is the highest unemployment rate in the sample?
 max(state_unemp$Unemployment_rate)
 
+# Which state has the highest unemployment rate in the sample? In what year was that rate reached?
+max_unemp <- max(state_unemp$Unemployment_rate)
+state_unemp$State[state_unemp$Unemployment_rate == max_unemp]
+state_unemp$date[state_unemp$Unemployment_rate == max_unemp]
 
-state_unemp$State[state_unemp$Unemployment_rate == max(state_unemp$Unemployment_rate)]
+state_unemp[state_unemp$Unemployment_rate == max_unemp,]
 
-
-state_unemp$date[state_unemp$Unemployment_rate == max(state_unemp$Unemployment_rate)]
-
-
+# What is the average household income across all the states in the sample?
 mean(state_unemp$Median_Household_Income_2015)
+summary(state_unemp)
 
+# What is Ohio's average unemployment rate in this time horizon?
+ohio <- state_unemp[state_unemp$State == 'OH',]
+mean(ohio$Unemployment_rate)
 
-mean(state_unemp$Unemployment_rate[state_unemp$State == "OH"])
+# Create a time-series plot of the unemployment rate in the state with the lowest unemployment rate in 2016
+min_unemp <- min(state_unemp$Unemployment_rate[state_unemp$date == '2016-01-01'])
+min_state <- state_unemp$State[state_unemp$Unemployment_rate == min_unemp]
+min_state <- min_state[2]
 
+plot(state_unemp$Unemployment_rate[state_unemp$State == min_state])
+
+# Change the x- and y-labels and plot title to descriptive names
+# Using '?plot' for help, change the type of the plot to a line graph
 
 unemp_2016 <- state_unemp[state_unemp$date == "2016-01-01",]
 unemp_2016$State[unemp_2016$Unemployment_rate == min(unemp_2016$Unemployment_rate) & 
                    unemp_2016$date == "2016-01-01"]
 
-
-plot(state_unemp$date[state_unemp$State == "NH"], state_unemp$Unemployment_rate[state_unemp$State == "NH"])
-
+plot(state_unemp$date[state_unemp$State == "NH"], 
+     state_unemp$Unemployment_rate[state_unemp$State == "NH"])
 
 plot(state_unemp$date[state_unemp$State == "NH"], 
      state_unemp$Unemployment_rate[state_unemp$State == "NH"],
      xlab = "Year", ylab = "Unemployment rate", main = "New Hampshire Unemployment Rate",
      type = "l")
 
-
-# ---------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Load in data
 wage_data <- data.frame(read_dta("MROZ.dta"))
 salaries_data <- read.csv("Salaries.csv", stringsAsFactors=FALSE)
 county_unemp <- read.csv("county_unemp_clean.csv", stringsAsFactors=FALSE)
 
-# PROGRAMMING IN R ----------------------------------------------------
+# PROGRAMMING IN R ------------------------------------------------------------
 
+a <- 7
+
+if (a == 7) {
+  print('a is equal to 7!')
+} else {
+  print('a is not equal to 7!')
+}
+
+if (a %% 2 == 0) {
+  print('a is even!')
+} else {
+  print('a is odd!')
+}
+
+a <- sample(1:100, 10)
 a <- 7
 
 if (a %% 2 == 0) {
@@ -293,7 +326,7 @@ for(i in 1:length(a_vector)){
 # Specify a random vector using the following syntax
 rand_vect <- round(100*runif(100),0)
 
-# PROGRAMMING IN R - PRACTICE -----------------------------------------
+# PROGRAMMING IN R - PRACTICE -------------------------------------------------
 
 # Write a function `cube`, which takes a value and returns that value cubed; write a loop to apply this function to all the elements of the vector; print the cubed values
 # Using a loop and control flow, check if each element of the vector is a perfect square, if it is return the index, i, and print "Perfect square!"
@@ -322,7 +355,7 @@ for(i in 1:length(rand_vect)) {
   }
 }
 
-# DATA ANALYSIS -------------------------------------------------------
+# DATA ANALYSIS ---------------------------------------------------------------
 
 # Dealing with missing values
 a_dataframe <- data.frame(x = c("x", "y", "z"), 
@@ -335,6 +368,10 @@ summary(a_dataframe)
 sum(is.na(a_dataframe))
 a_dataframe[complete.cases(a_dataframe),]
 
+wage_data <- read_dta('MROZ.dta')
+summary(wage_data)
+wage_data$wage[is.na(wage_data$wage)]
+
 library(readxl)
 hpi <- data.frame(read_excel("HPI_AT_BDL_county.xlsx", na=c("", "."), skip=6))
 
@@ -345,7 +382,7 @@ summary(hpi)
 sum(is.na(hpi))
 hpi[complete.cases(hpi),]
 
-# dplyr ---------------------------------------------------------------
+# dplyr -----------------------------------------------------------------------
 
 # dplyr basics
 head(salaries_data)
@@ -380,7 +417,7 @@ salaries_data %>%
   arrange(salary) %>%
   filter(sex=="Female")
 
-# dplyr merges---------------------------------------------------------
+# dplyr merges-----------------------------------------------------------------
 
 # Merging, pipes, and group_by
 data(state)
@@ -445,74 +482,120 @@ state_unemp %>%
   group_by(Area_name) %>%
   summarise(Unemployment_rate = mean(Unemployment_rate, na.rm=TRUE))
 
-# DATA ANALYSIS - PRACTICE --------------------------------------------
+# COOL-DOWN -------------------------------------------------------------------
 
+# Repeat the following, this time with `dplyr`
+
+# Read the 'state_unemp_clean.csv' data into memory and assign it to a variable of your choosing
+# Convert the 'date' column to the date type (Hint: Use 'as.Date' and reassign it to the 'date' variable)
+# What is the highest unemployment rate in the sample?
+# Which state has the highest unemployment rate in the sample? In what year was that rate reached?
+# What is the average household income across all the states in the sample?
+# What is Ohio's average unemployment rate in this time horizon?
+
+library(dplyr)
+state_unemp <- read.csv("state_unemp_clean.csv", stringsAsFactors=FALSE)
+
+
+state_unemp <- mutate(state_unemp, as.Date(date))
+
+
+max_unemployment <- summarise(state_unemp, max_unemployment=max(Unemployment_rate))
+max_unemployment$max_unemployment
+
+
+max_row <- filter(state_unemp, Unemployment_rate == max_unemployment$max_unemployment)
+max_row$date
+
+
+avg_unemp <- summarise(state_unemp, avg_unemp = mean(Unemployment_rate))
+avg_unemp
+
+state_unemp %>%
+  filter(State == 'OH') %>%
+  summarise(oh_avg_unemp = mean(Unemployment_rate))
+
+# -----------------------------------------------------------------------------
+
+# DATA ANALYSIS - PRACTICE ----------------------------------------------------
+
+library(dplyr)
 weo_report <- read.csv("weo_clean.csv", stringsAsFactors = FALSE)
 wdi_indicators <- read.csv("wdi_indicators.csv", stringsAsFactors = FALSE)
+?left_join
 
 # Merge in the World Development Indicators indicators data with the WEO data
-# Report countries that did not receive valid region or income_group identifers
+
+weo_full <- left_join(weo_report, wdi_indicators, by='country')
+glimpse(weo_full)
+
+# Report countries that did not receive valid regions and remove the countries missing regions
+
+which(is.na(weo_full$region))
+sum(is.na(weo_full$region))
+mean(is.na(weo_full$region))
+table(weo_full$region, useNA = 'ifany')
+summary(weo_full)
+
+weo_full <- filter(weo_full, is.na(region))
+sum(is.na(weo_full$region))
 
 # Using dplyr and pipes, in one chained command, create a subset of the data that:
-# Has only those observations from the "Europe & Central Asia" region from 2016
-# Has only the country, gdppc, unemployment_rate, and curr_acc_bal values
+# -Has only those observations from the "Europe & Central Asia" region from 2016
+# -Has only the country, gdp_cp, unemployment_rate, and curr_acc_bal values
+# -Change the units of unemployment_rate to reflect a percent with a mutate command (divide by 100)
 
-# Change the units of unemployment_rate to reflect a percent with a mutate command (divide by 100)
-# Find the average unemployment rate for this group
-# Create a time-series plot of Danish unemployment over the sample period
-# Find the average level of GDP for each income group
-# Which region has the largest within-region disparity in GDP per capita, as measured by standard deviation?
-# Create histograms of the GDP per capita variable within each region, setting the title of each plot to the name of the region
-
-weo_full <- left_join(weo_report, wdi_indicators, by="country")
-
-
-unmerged_countries <- filter(weo_full, is.na(region))
-unique(unmerged_countries$country)
-
-
-weo_full <- filter(weo_full, !is.na(region))
-
-
-eca_weo <-
+weo_subset <-
   weo_full %>%
   filter(region == "Europe & Central Asia" & year == 2016) %>%
-  select(country, gdppc, unemployment_rate, curr_acc_bal) %>%
-  mutate(unemployment_rate = unemployment_rate/100) %>%
-  summarise(mean_unemployment_rate = mean(unemployment_rate, na.rm=TRUE))
+  select(country, gdp_cp, unemployment_rate, curr_acc_bal) %>%
+  mutate(unemployment_rate = unemployment_rate / 100)
 
-eca_weo
+glimpse(weo_subset)
 
+# Find the average unemployment rate for this group
 
-dmk_ur <- 
-  weo_full  %>%
-  filter(country=="Denmark") %>%
-  select(country, year, unemployment_rate)
+summarise(weo_subset, avg_unemp = mean(unemployment_rate, na.rm = T))
 
-plot(dmk_ur$year, dmk_ur$unemployment_rate, "l")
+# Create a time-series plot of Danish unemployment over the sample period
 
+glimpse(weo_full)
+denmark <-
+  weo_full %>%
+  filter(country == 'Denmark')
+
+plot(denmark$year, denmark$unemployment_rate, type='l')
+
+# Find the average level of GDP for each income group
 
 weo_full %>%
   group_by(income_group) %>%
-  summarise(deviation = sd(gdp_cp, na.rm=T)) %>%
-  ungroup() %>%
-  filter(deviation == max(deviation))
+  summarise(avg_gdp = mean(gdppc, na.rm = T))
+
+# Which region has the largest within-region disparity in GDP per capita, as measured by standard deviation?
+
+weo_full %>%
+  group_by(region) %>%
+  summarise(gdp_sd = sd(gdppc, na.rm=T))
+
+# Create histograms of the GDP per capita variable within each region, setting the title of each plot to 
+# the name of the region
 
 for (region in unique(weo_full$region)) {
   hist(weo_full$gdp_cp[weo_full$region == region], main = region, xlab = "GDP per capita")
 }
 
-# SESSION 3 ----------------------------------------------------------------------------
+# SESSION 3 -------------------------------------------------------------------
 
 # Set working directory and libraries
 library(dplyr)
 library(tidyr)
 library(purrr)
-library(readxl)
 library(stringr)
+library(lubridate)
 library(ggplot2)
 
-# EXTRAS --------------------------------------------------------------
+# EXTRAS ----------------------------------------------------------------------
 
 # Dates
 
@@ -552,12 +635,14 @@ gsub("_2013", "", names_vector)
 str_replace(names_vector, "_2013", "")
 
 paste("Hi", "there!")
-paste0("Hi", "there!")
 
 # The 'apply' family
 
 char_vector <- as.character(c(seq(1:12)))
-char_df <- data.frame(x=char_vector[1:4], y=char_vector[5:8], z=char_vector[9:12], stringsAsFactors = FALSE)
+char_df <- data.frame(x=char_vector[1:4], 
+                      y=char_vector[5:8], 
+                      z=char_vector[9:12], 
+                      stringsAsFactors = FALSE)
 char_df
 str(char_df)
 
@@ -576,10 +661,21 @@ lapply(wage_data2[,c(2:length(wage_data2))], regplot, wage_data2$wage)
 
 sapply(a_vector, function(x) ifelse(x%%2 == 0, "even", "odd"))
 
+# Perhaps more usefully
+for(i in seq_along(weo_full)) {
+  print(mean(is.na(weo_full[[i]])))
+}
+
+sapply(weo_full, function(x) mean(is.na(x)))
+
 # tidyr functions
 
 # The "gather" function
-a_dataframe <- data.frame(ids = c("x", "y", "z"), y2015 = c(1,2,3), y2016 = c(9,10,3), y2017=c(10,NA,3), stringsAsFactors = FALSE)
+a_dataframe <- data.frame(ids = c("x", "y", "z"), 
+                          y2015 = c(1,2,3), 
+                          y2016 = c(9,10,3), 
+                          y2017=c(10,NA,3), 
+                          stringsAsFactors = FALSE)
 str(a_dataframe)
 a_dataframe
 
@@ -588,19 +684,42 @@ year_data_all <- list()
 for(i in 1:length(year_variables)) {
   year_data <- select(a_dataframe, 1, year_variables[i])
   year_data$year <- year_variables[i]
-  names(year_data) <- c("ids", "value", "year")
+  names(year_data) <- c("ids", "year", "value")
   year_data_all[[i]] <- year_data
 }
 
 data.frame(Reduce("rbind", year_data_all))
 
+# First to long (hint: use this same structure for the project!) ---
+
+# gather
 data_long <- gather(a_dataframe, key=year, value=value, y2015:y2017)
 data_long
 
-# Back to wide
+# pivot_longer
+data_long <- pivot_longer(data=a_dataframe, 
+                          cols=y2015:y2017, # Or cols=c('y2015', 'y2016', 'y2017')
+                          names_to = 'year')
+data_long
+
+# Remove prefixes as well
+data_long <- pivot_longer(data=a_dataframe, 
+                          cols=c('y2015', 'y2016', 'y2017'),
+                          names_to = 'year',
+                          names_prefix = 'y')
+data_long
+
+# Back to wide (hint: use this same structure for the project!) ---
+
+# spread
 spread(data_long, key = year, value=value)
 
-# Using 'union' and 'separate'
+# pivot_wider
+pivot_wider(data = data_long, 
+            id_cols = 'ids',
+            names_from = 'year',
+            values_from = 'value')
+
 bigger_dataframe <- data.frame(ids = c("x", "x", "x", "y", "y", "y", "z", "z", "z"), 
                                vars = c("a","b","c","a","b","c","a","b","c"),
                                y2015 = c(1,2,3,4,5,6,7,8,9), 
@@ -608,8 +727,20 @@ bigger_dataframe <- data.frame(ids = c("x", "x", "x", "y", "y", "y", "z", "z", "
                                y2017=c(10,NA,3,10,NA,3,10,NA,3), 
                                stringsAsFactors = FALSE)
 
+# gather/spread
 data_long <- gather(bigger_dataframe, key=year, value=value, y2015:y2017)
 spread(data_long, key=vars, value=value)
+
+# pivots
+data_long <- pivot_longer(data=bigger_dataframe,
+                          cols=y2015:y2017,
+                          names_to='year',
+                          names_prefix='y')
+
+pivot_wider(data=data_long,
+            id_cols=c('ids', 'year'),
+            names_from='vars',
+            values_from='value')
 
 # Using real data
 weo_raw <- read.csv("weo_report.csv", na.strings=c(""), stringsAsFactors=FALSE)
@@ -617,17 +748,40 @@ weo_raw$X2000 <- as.numeric(weo_raw$X2000)
 weo_raw$X2002 <- as.numeric(weo_raw$X2002)
 weo_raw$X2012 <- as.numeric(weo_raw$X2012)
 
+# gather/spread
 weo_long <- gather(weo_raw, key=year, value=value, X2000:X2016)
 weo_clean <- spread(weo_long, key=Subject.Descriptor, value=value)
+
+# pivots
+weo_long <- pivot_longer(data=weo_raw,
+                         cols=X2000:X2016,
+                         names_to='year',
+                         names_prefix = 'X')
+weo_clean <- pivot_wider(data=weo_long,
+                         id_cols=c('Country', 'year'),
+                         names_from = 'Subject.Descriptor',
+                         values_from = 'value')
+
 weo_clean$year <- as.numeric(gsub("X", "", weo_clean$year))
 
 write.csv(weo_clean, "weo_clean.csv", row.names=FALSE)
 
-# ggplot2 -------------------------------------------------------------
+# ggplot2 ---------------------------------------------------------------------
 
 # Grab one year/one country of data
+weo_report <- read.csv("weo_clean.csv", stringsAsFactors = FALSE)
+wdi_indicators <- read.csv("wdi_indicators.csv", stringsAsFactors = FALSE)
+weo_full <- left_join(weo_report, wdi_indicators, by='country')
+weo_full <- filter(weo_full, !is.na(region))
+
 weo_2016 <- weo_full[weo_full$year == 2016,]
 weo_country <- weo_full[weo_full$country == "Argentina",]
+
+ggplot(weo_2016, aes(x=unemployment_rate)) +
+  geom_histogram(bins=10) +
+  labs(x = 'Unemployment rate (%)',
+       y = 'Frequency',
+       title = 'Dist. of Unemployment, 2016')
 
 ggplot(weo_2016, aes(x=unemployment_rate)) +
   geom_histogram(bins=30) +
@@ -636,6 +790,11 @@ ggplot(weo_2016, aes(x=unemployment_rate)) +
 ggplot(weo_2016, aes(x=unemployment_rate, y=gdp_cp)) +
   geom_point() +
   labs(x = "Unemployment rate (%)", y = "GDP per capita", title = "Unemployment vs. GDP per capita, 2016")
+
+ggplot(weo_country, aes(x=year, y=unemployment_rate)) +
+  geom_point() +
+  geom_line() +
+  labs(x = 'Year', y = 'Unemployment Rate', title='Unemployment in Argentina')
 
 ggplot(weo_country, aes(x=year, y=unemployment_rate)) +
   geom_point() +
@@ -648,6 +807,10 @@ ggplot(weo_country, aes(x=year, y=unemployment_rate)) +
 
 # Grab a few countries
 weo_countries <- weo_full[weo_full$country %in% c("Argentina", "Brazil", "Chile", "Uruguay"),]
+weo_countries <- filter(weo_full, country %in% c('Argentina', 'Brazil', 'Chile', 'Uruguay'))
+
+ggplot(weo_countries, aes(x=year, y=unemployment_rate, col=country)) +
+  geom_line()
 
 ggplot(weo_countries, aes(x=year, y=unemployment_rate, col=country)) +
   geom_line(size=1) +
@@ -658,8 +821,12 @@ weo_years <- weo_full[weo_full$year %in% c(2014,2015),]
 
 ggplot(weo_years, aes(x=unemployment_rate, fill=factor(year))) +
   geom_histogram(bins=50) +
-  labs(x = "Unemployment rate (%)", y = "Frequency", title = "Distribution of unemployment, by year") +
-  scale_fill_discrete(name = "Year")
+  facet_wrap(~factor(year)) +
+  labs(x = "Unemployment rate (%)", 
+       y = "Frequency", 
+       title = "Distribution of unemployment, by year") +
+  scale_fill_discrete(name = "Year") +
+  theme_dark()
 
 # Side-by-side
 ggplot(weo_years, aes(x=unemployment_rate, fill=factor(year))) +
@@ -668,7 +835,35 @@ ggplot(weo_years, aes(x=unemployment_rate, fill=factor(year))) +
   labs(x = "Unemployment rate (%)", y = "Frequency", title = "Distribution of unemployment, by year") +
   scale_fill_discrete(name = "Year")
 
-# ggplot2 - PRACTICE --------------------------------------------------
+# ggplot2 - PRACTICE ----------------------------------------------------------
 
-# Plot the GDP per capita values for the `Europe & Central Asia` region over time, with each country as a separate color; label accordingly
-# Using `dplyr` commands (and pipes, if possible), plot the average `unemployment_rate` over time, with each region as its own color; label accordingly
+# Grab one year/one country of data
+weo_report <- read.csv("weo_clean.csv", stringsAsFactors = FALSE)
+wdi_indicators <- read.csv("wdi_indicators.csv", stringsAsFactors = FALSE)
+weo_full <- left_join(weo_report, wdi_indicators, by='country')
+weo_full <- filter(weo_full, !is.na(region))
+
+# Plot the GDP per capita values for the `Europe & Central Asia` region over time, with each country 
+# as a separate color; label accordingly
+
+eca <- filter(weo_full, region == 'Europe & Central Asia')
+unique(eca$country)
+
+ggplot(eca[eca$country %in% unique(eca$country)[1:10],], aes(x=year, y=gdp_cp, col=country)) +
+  geom_line() +
+  labs(x='Year',
+       y='GDP per capita',
+       title='GDP per capita in Europe & Central Asia')
+
+# Using `dplyr` commands (and pipes, if possible), plot the average `unemployment_rate` over time, 
+# with each region as its own color; label accordingly
+
+weo_regions <-
+  weo_full %>%
+  group_by(region, year) %>%
+  summarise(avg_unemp = mean(unemployment_rate, na.rm=T))
+
+ggplot(weo_regions, aes(x=year, y=avg_unemp, col=region)) +
+  geom_line() +
+  labs(x='Year',
+       y='Avg. Unemployment Rate')

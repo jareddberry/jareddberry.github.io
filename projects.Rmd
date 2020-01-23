@@ -17,12 +17,23 @@ output:
 
 We constructed a novel data set of carefully engineered financial features and leveraged machine learning algorithms in Python to predict excess returns relative to an index, using custom-built frameworks for cross-validation. I was responsible for developing our modeling framework (including the custom-built frameworks we used for cross-validation in both time-series and panel-data contexts) and developed the code necessary to pull fundamentals data from the SimFin API. I plan to detail the modeling and cross-validation frameworks implemented separately in the blog. Resources will also be posted [here](http://gdsc.georgetown.domains/capstone-projects/).
 
+***
+
+### Teaching Modeling with R
+
+[Advanced R: Modeling (Beamer Presentation)](files/advanced_r.pdf)  
+[Advanced R: Modeling script](files/advanced-r-annotated.R)
+
+For the first time this Intercession at Johns Hopkins SAIS (described below), I taught an "advanced" R course, essentially providing a very gentle introduction to statistical learning and predictive modeling using R (largely in response to requests from students). Both the R code and motivation for the curriculum were heavily influenced by the Introduction to Statistical Learning materials and book, [here](http://faculty.marshall.usc.edu/gareth-james/ISL/)), and I defer credit to those authors for much of the work here. My goal was to offer some experience building and validating predictive models in R, which diverges somewhat from the heavily inferential econometric training that the standard curriculum offers. 
+
+***
+
 ### Teaching Introductory R
 
 [Introduction to R Presentation (Beamer Presentation)](files/intro_to_R.pdf)  
 [Introduction to R script](files/intro_to_R.R)
 
-This is the second year I've had the privilege of teaching R at Johns Hopkins SAIS during the Winter Intercession that is run for the MIEF cohort (from which I am alum). The structure of the intercession is designed to provide brief, intensive, skills-based courses to the cohort, covering a wide-range of topics including programming languages, investing, infrastructure finance, etc. I've used the presentation materials to teach R in this setting, as well as to teach R to incoming RAs at the Fed in the Monetary Affairs division. The emphasis is on the basics, and getting up to speed on data cleaning and manipulation using `dplyr`. While the presentation is well-organized, the R script is more a stream-of-conciousness exercise that I work through alongside the presentation to demonstrate working through the commands directly in the R Studio environment.
+I've had the privilege of teaching R at Johns Hopkins SAIS during the Winter Intercession, and more recently during the Fall Semester, that is run for the MIEF cohort (from which I am alum). The structure of the intercession is designed to provide brief, intensive, skills-based courses to the cohort, covering a wide-range of topics including programming languages, investing, infrastructure finance, etc. I've used the presentation materials to teach R in this setting, as well as to teach R to incoming RAs at the Fed in the Monetary Affairs division. My focus is getting up and running the the basics and syntax, data cleaning and manipulation using `dplyr`, along with some select functions from the `tidyr` package, and introductory plotting using `ggplot`. In order to complete the course, students also complete a deliverable wherein they clean the World Development Indicators from the World Bank (a real-world data set that demands a fair bit of cleaning) and run some analysis using the functions and workflow we discuss in the course. 
 
 ***
 
