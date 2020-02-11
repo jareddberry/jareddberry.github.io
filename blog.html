@@ -393,6 +393,18 @@ div.tocify {
 </div>
 
 
+<div id="election-issue-open-ended-analysis" class="section level3">
+<h3>Election Issue Open-Ended Analysis</h3>
+<p><a href="https://morningconsult.com/2020/02/04/what-is-the-2020-election-about-we-gave-4400-people-a-blank-space-to-tell-us/">What Is the 2020 Election About? We Gave 4,400 People a Blank Space to Tell Us</a></p>
+<p>We’ve been doing a lot to better operationalize the use of open-ended responses at Morning Consult, and this is a testament to that work. My colleague, Sam Goodgame, built the engine that powers this in Python, predominantly leveraging Spacy to do much of the NLP work. We do quite a bit of analysis in R, as well, (primarily a suite of functions to operationalize unaided awareness/recall type questions - a post on that to come) and we leveraged many of those utilities to map the categorized open-ended responses back to the respondent-level data, which let us cut things across demographics to deepen the analysis.</p>
+</div>
+<div id="congressional-district-media-usage" class="section level3">
+<h3>Congressional District Media Usage</h3>
+<p><a href="https://morningconsult.com/2019/12/08/the-congressional-districts-potentially-most-vulnerable-to-facebook-misinformation/">The Congressional Districts Potentially Most Vulnerable to Facebook Misinformation</a><br />
+<a href="https://morningconsult.com/2019/12/08/in-blue-congressional-districts-republicans-more-likely-than-democrats-to-use-twitter/">In Blue Districts, Republicans More Likely Than Democrats to Use Twitter</a><br />
+<a href="https://morningconsult.com/2019/12/08/fox-news-upper-hand-next-year-the-countrys-eyeballs-down-to-districts/">Fox News’ Upper Hand Next Year: The Country’s Eyeballs, Down to Districts</a></p>
+<p>One of the mandates which I was brought on to fulfill at Morning Consult could largely be construed as “we’re sitting on mountains of data, and we need people like you to help us do more with it.” This was one of those tangible intersections of my work and niche interests in R (creating heatmaps, see below). This project involved taking millions of respondent-level observations from our <a href="https://morningconsult.com/product/brand-intelligence/">brand tracking engine</a> and distilling them into reprentative, congressional-district level data points (of particular interest in an election year). All of the data work that went into the maps above was done in R, along with the generation of the maps themselves (thank you <code>USABoundaries</code> package, which saved me the trouble of messing with the TIGER shape files directly) - credit goes to Joanna Piacenza for spinning the narratives around these data, and to our design team for prettifying things for publication.</p>
+</div>
 <div id="a-capstone-by-another-name-goodbye-eviews" class="section level3">
 <h3>A Capstone By Another Name (Goodbye EViews)</h3>
 <p><a href="files/case-study.R">End-to-end Exchange Rate Forecasting Capstone Pipeline</a></p>
