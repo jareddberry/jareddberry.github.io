@@ -9,6 +9,12 @@ output:
       smooth_scroll: false
 ---
 
+### Ad Recall Entity Resolution
+
+[For Super Bowl LV Commercials, No Brand Fills Void Left by Budweiser](https://morningconsult.com/2021/02/08/super-bowl-commercials-polling/)
+
+This was another opportunity to leverage some of the open-end canonicalization/entity resolution work laid out in last year's analysis, and more generally in the Edit Distance and Approximate String Matching post below.
+
 ### Election Issue Open-Ended Analysis
 
 [What Is the 2020 Election About? We Gave 4,400 People a Blank Space to Tell Us](https://morningconsult.com/2020/02/04/what-is-the-2020-election-about-we-gave-4400-people-a-blank-space-to-tell-us/)
